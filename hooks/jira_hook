@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+import requests
+import json
+
+session = requests.Session()
+
 class JiraHook:
     def __init__(self, url):
         self.commands = []
@@ -15,10 +20,32 @@ class JiraHook:
 class JiraHookCommand:
     def __call__(self, url): pass
 
-class JiraTestCommand:
+class JiraLogin(JiraHookCommand):
+    def __init__(self, session, username, password):
+        self.session  = session
+        self.username = username
+        self.password = password
+        self.endpoint = '/rest/auth/1/session'
+
     def __call__(self, url):
-        print('Using ' + url)
+        credentials = {
+            'username': self.username,
+            'password': self.password
+        }
+        result = self.session.post(url + self.endpoint, json=credentials)
+        print(result.status_code)
+
+class JiraLogout(JiraHookCommand):
+    def __init__(self, session):
+        self.session  = session
+        self.endpoint = '/rest/auth/1/session'
+
+    def __call__(self, url):
+        result = session.delete(url + self.endpoint)
+        print(result.status_code)
+        print(result.text)
 
 jira_hook = JiraHook('https://bigdavedev.atlassian.net')
-jira_hook.appendJiraCommand(JiraTestCommand())
+jira_hook.appendJiraCommand(command=JiraLogin(session, 'user', 'password'))
+jira_hook.appendJiraCommand(command=JiraLogout(session))
 jira_hook.execute()
