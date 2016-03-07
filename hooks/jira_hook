@@ -2,8 +2,11 @@
 
 import requests
 import json
+import configparser
+import os
 
 session = requests.Session()
+config = configparser.ConfigParser()
 
 class JiraHook:
     def __init__(self, url):
@@ -55,8 +58,11 @@ class JiraAddComment(JiraHookCommand):
     def __call__(self, url):
         result = self.session.post(url + self.endpoint, json={'body': self.comment})
 
-jira_hook = JiraHook('https://bigdavedev.atlassian.net')
-jira_hook.appendJiraCommand(command=JiraLogin(session, 'user', 'password'))
+config.read(os.path.expanduser('~/gerrit_hook.config'))
+jira_config = config['jira']
+
+jira_hook = JiraHook(jira_config['url'])
+jira_hook.appendJiraCommand(command=JiraLogin(session, jira_config['username'], jira_config['password']))
 jira_hook.appendJiraCommand(command=JiraAddComment(session, 'TEST-1', 'This is a test'))
 jira_hook.appendJiraCommand(command=JiraLogout(session))
 jira_hook.execute()
