@@ -45,7 +45,18 @@ class JiraLogout(JiraHookCommand):
         print(result.status_code)
         print(result.text)
 
+class JiraAddComment(JiraHookCommand):
+    def __init__(self, session, issue, comment):
+        self.session  = session
+        self.issue    = issue
+        self.comment  = comment
+        self.endpoint = '/rest/api/2/issue/{}/comment'.format(self.issue)
+
+    def __call__(self, url):
+        result = self.session.post(url + self.endpoint, json={'body': self.comment})
+
 jira_hook = JiraHook('https://bigdavedev.atlassian.net')
 jira_hook.appendJiraCommand(command=JiraLogin(session, 'user', 'password'))
+jira_hook.appendJiraCommand(command=JiraAddComment(session, 'TEST-1', 'This is a test'))
 jira_hook.appendJiraCommand(command=JiraLogout(session))
 jira_hook.execute()
