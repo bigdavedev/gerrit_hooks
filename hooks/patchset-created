@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+python jira_hook --action $(basename $0) "$@"

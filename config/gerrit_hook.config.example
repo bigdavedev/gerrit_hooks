@@ -12,3 +12,13 @@ url =
 # Which API to use.  One of rest or xmlrpc
 # Default is rest.
 api =
+
+[gerrit]
+# Where this gerrit instance is located.
+url=localhost
+
+# Username for authentication.
+username=gerrit2
+
+# SSH port of gerrit instance.
+port=29418

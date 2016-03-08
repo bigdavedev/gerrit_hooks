@@ -4,6 +4,9 @@ import configparser
 import os
 import re
 import json
+import subprocess
+import getopt
+import sys
 
 from jira import JiraHook, JiraLogin, JiraLogout, JiraAddComment
 
@@ -77,10 +80,28 @@ def get_summary(action):
     else:
         raise ValueError('{} not supported by this hook'.format(action))
 
-issue, comment = get_test_issue_and_comment()
+def get_data_from_gerrit(change_id):
+    gerrit_config = config['gerrit']
+    gerrit_cmd = 'ssh {url} -p {port} -l {username} gerrit query --format JSON {id} limit:1'
+    gerrit_cmd = gerrit_cmd.format(url=gerrit_config['url'],
+                                   port=gerrit_config['port'],
+                                   username=gerrit_config['username'],
+                                   id=change_id)
+    with subprocess.Popen(gerrit_cmd.split(' '), stdout=subprocess.PIPE) as proc:
+        gerrit_data = proc.stdout.read()
+    return json.loads(gerrit_data.decode('utf-8').splitlines()[0])
 
-jira_hook = JiraHook(jira_config['url'])
-jira_hook.appendJiraCommand(command=JiraLogin(jira_config['username'], jira_config['password']))
-jira_hook.appendJiraCommand(command=JiraAddComment(issue, comment))
-jira_hook.appendJiraCommand(command=JiraLogout())
-jira_hook.execute()
+if __name__ == '__main__':
+    options=['action=','change=']
+    optlist, args = getopt.getopt(sys.argv[1:], '', options)
+    action = change_id = ''
+    for option, arg in optlist:
+        if option == '--action': action = arg
+        elif option == '--change': change_id = arg
+    issue, comment = format_comment(action, get_data_from_gerrit(change_id))
+
+    jira_hook = JiraHook(jira_config['url'])
+    jira_hook.appendJiraCommand(command=JiraLogin(jira_config['username'], jira_config['password']))
+    jira_hook.appendJiraCommand(command=JiraAddComment(issue, comment))
+    jira_hook.appendJiraCommand(command=JiraLogout())
+    jira_hook.execute()
