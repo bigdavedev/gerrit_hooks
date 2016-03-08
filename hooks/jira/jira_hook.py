@@ -1,6 +1,11 @@
 import requests
 
 class JiraHook:
+    """
+    Composable hook for manipulating Jira instances.
+
+    Can be customised with JiraHookCommand classes.
+    """
     def __init__(self, url, session=requests.Session()):
         self.commands = []
         self.url = url
@@ -14,4 +19,8 @@ class JiraHook:
         self.commands.append(command)
 
 class JiraHookCommand:
+    """
+    Base class for any commands that should be run against
+    the Jira instance.
+    """
     def __call__(self, url, session): pass

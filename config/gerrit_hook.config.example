@@ -1,5 +1,14 @@
 [jira]
+# Username for the Jira intance
 username =
+
+# Password for the aforementioned user
 password =
+
+# Where this Jira instance is located
+# e.g. https://jira.example.com
 url =
+
+# Which API to use.  One of rest or xmlrpc
+# Default is rest.
 api =
