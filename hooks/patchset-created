@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python jira_hook --action $(basename $0) "$@"
+python3 $(dirname $0)/jira_hook --action $(basename $0) "$@"

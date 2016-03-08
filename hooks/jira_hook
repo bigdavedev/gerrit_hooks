@@ -92,7 +92,8 @@ def get_data_from_gerrit(change_id):
     return json.loads(gerrit_data.decode('utf-8').splitlines()[0])
 
 if __name__ == '__main__':
-    options=['action=','change=']
+    options=['action=','change=','change-url=', 'commit=', 'project=', 'branch=', 'uploader=',
+             'patchset=', 'abandoner=', 'reason=', 'submitter=','is-draft=','kind=','change-owner=','project=']
     optlist, args = getopt.getopt(sys.argv[1:], '', options)
     action = change_id = ''
     for option, arg in optlist:
