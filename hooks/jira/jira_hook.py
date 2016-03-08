@@ -14,4 +14,4 @@ class JiraHook:
         self.commands.append(command)
 
 class JiraHookCommand:
-    def __call__(self, url): pass
+    def __call__(self, url, session): pass
