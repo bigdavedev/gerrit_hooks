@@ -1,62 +1,13 @@
 #!/usr/bin/env python3
 
 import requests
-import json
 import configparser
 import os
 
+from jira import JiraHook, JiraLogin, JiraLogout, JiraAddComment
+
 session = requests.Session()
 config = configparser.ConfigParser()
-
-class JiraHook:
-    def __init__(self, url):
-        self.commands = []
-        self.url = url
-
-    def execute(self):
-        for command in self.commands:
-            command(self.url)
-
-    def appendJiraCommand(self, command):
-        self.commands.append(command)
-
-class JiraHookCommand:
-    def __call__(self, url): pass
-
-class JiraLogin(JiraHookCommand):
-    def __init__(self, session, username, password):
-        self.session  = session
-        self.username = username
-        self.password = password
-        self.endpoint = '/rest/auth/1/session'
-
-    def __call__(self, url):
-        credentials = {
-            'username': self.username,
-            'password': self.password
-        }
-        result = self.session.post(url + self.endpoint, json=credentials)
-        print(result.status_code)
-
-class JiraLogout(JiraHookCommand):
-    def __init__(self, session):
-        self.session  = session
-        self.endpoint = '/rest/auth/1/session'
-
-    def __call__(self, url):
-        result = session.delete(url + self.endpoint)
-        print(result.status_code)
-        print(result.text)
-
-class JiraAddComment(JiraHookCommand):
-    def __init__(self, session, issue, comment):
-        self.session  = session
-        self.issue    = issue
-        self.comment  = comment
-        self.endpoint = '/rest/api/2/issue/{}/comment'.format(self.issue)
-
-    def __call__(self, url):
-        result = self.session.post(url + self.endpoint, json={'body': self.comment})
 
 config.read(os.path.expanduser('~/gerrit_hook.config'))
 jira_config = config['jira']
